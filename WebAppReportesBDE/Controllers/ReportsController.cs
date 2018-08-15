@@ -8,21 +8,25 @@ using WebAppReportesBDE.Utiles;
 
 namespace WebAppReportesBDE.Controllers
 {
+    [RoutePrefix("Reporttes")]
     public class ReportsController : Controller
     {
-        // GET: Reports
+        [Route("Reportes")]
         public ActionResult Report()
         {
 
             try
             {
-                var ReporteClientesPath = Request.QueryString[0];
+                var ServerReportUrl = ApiDesencriptar.Desencriptar(Request.QueryString[0]);
+                var UsuarioReporte =ApiDesencriptar.Desencriptar(Request.QueryString[1]);
+                var ContrasenaReporte = ApiDesencriptar.Desencriptar(Request.QueryString[2]);
+                var ReporteClientesPath = ApiDesencriptar.Desencriptar(Request.QueryString[3]);
 
                 var parametros = new List<Parametro>();
 
-                for (int i = 1; i < Request.QueryString.AllKeys.Length; i++)
+                for (int i = 4; i < Request.QueryString.AllKeys.Length; i++)
                 {
-                    parametros.Add(new Parametro { Clave = Request.QueryString.Keys[i], Valor = Request.QueryString[Request.QueryString.Keys[i]] });
+                    parametros.Add(new Parametro { Clave = ApiDesencriptar.Desencriptar(Request.QueryString.Keys[i]), Valor = ApiDesencriptar.Desencriptar(Request.QueryString[Request.QueryString.Keys[i]]) });
                 }
 
                 ReportViewer rptViewer = new ReportViewer();
@@ -35,11 +39,11 @@ namespace WebAppReportesBDE.Controllers
                 rptViewer.Height = Unit.Percentage(100);
                 rptViewer.AsyncRendering = true;
 
-                IReportServerCredentials irsc = new CustomReportCredentials(Constantes.UsuarioReporte, Constantes.ContrasenaReporte);
+                IReportServerCredentials irsc = new CustomReportCredentials(UsuarioReporte,ContrasenaReporte);
 
                 rptViewer.ServerReport.ReportServerCredentials = irsc;
 
-                rptViewer.ServerReport.ReportServerUrl = new Uri(Constantes.ServerReportUrl);
+                rptViewer.ServerReport.ReportServerUrl = new Uri(ServerReportUrl);
                 rptViewer.ServerReport.ReportPath = ReporteClientesPath;
 
                 if (parametros.Count > 0)
